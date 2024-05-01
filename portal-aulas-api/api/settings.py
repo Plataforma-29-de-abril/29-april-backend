@@ -23,8 +23,8 @@ APPEND_SLASH = False
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_b0w-$0ak_rt2cln)s#)g5^_z%k_cnvn-d+2)u+^xxr#dn++z!'
-JWT_SECRET = "dapibusnecdignissimegetrciDuisaccumsanmiacarcu"
+SECRET_KEY = os.environ.get("SECRET_KEY")
+JWT_SECRET = os.environ.get("JWT_SECRET")
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_DOMAIN = None
 

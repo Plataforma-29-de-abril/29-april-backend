@@ -146,3 +146,4 @@ postgres_data/*
 postgres-data/*
 .db.txt
 Makefile
+.env.prod

@@ -27,7 +27,13 @@ class UserViewSet(viewsets.ModelViewSet):
   queryset = User.objects.all()
   serializer_class = UserSerializer
 
+  # Permite/bloqueia o cadastro de estudantes
+  admission_status = False
+
   def create(self, request, *args, **kwargs):
+        if not self.admission_status:
+            return Response({"error": "Período de inscrições encerrado!"}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -143,6 +149,36 @@ class UserViewSet(viewsets.ModelViewSet):
     response_json = json.loads(response.text)
 
     return Response(response_json, status=status.HTTP_200_OK, content_type='application/json')
+
+  @action(detail=False, methods=['post'], url_path='student-admission', authentication_classes = [authentication.CustomUserAuthentication], permission_classes=[CustomIsAdmin])
+  def student_admission(self, request):
+      new_status = request.data["status"]
+
+      if (isinstance(new_status, int)):
+        self.__class__.admission_status = new_status 
+
+        response_message = "Período de inscrições aberto" if new_status == True else "Período de inscrições fechado"
+
+        return Response({"data": {
+                        "status": new_status,
+                        "message": response_message
+                        }
+                    }, status=status.HTTP_200_OK)
+
+      return Response({"error": "Estado inválido"}, status=status.HTTP_400_BAD_REQUEST)
+
+  @action(detail=False, methods=['get'], url_path='student-admission-status', authentication_classes = [authentication.CustomUserAuthentication], permission_classes=[CustomIsAdmin])
+  def student_admission_status(self, request):
+      adm_status = self.__class__.admission_status 
+
+      response_message = "Período de inscrições aberto" if adm_status == True else "Período de inscrições fechado"
+
+      return Response({"data": {
+                        "status": adm_status,
+                        "message": response_message
+                        }
+                    }, status=status.HTTP_200_OK)
+
 
 class InvitationViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, 
                                 mixins.UpdateModelMixin, mixins.DestroyModelMixin,
